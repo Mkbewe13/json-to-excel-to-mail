@@ -8,6 +8,7 @@
         "phpoffice/phpspreadsheet": "^1.26",
         "twig/twig": "^2.0",
         "symfony/mailer": "^5.4",
-        "ext-json": "*"
+        "ext-json": "*",
+        "vlucas/phpdotenv": "^5.5"
     }
 }
