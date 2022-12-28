@@ -3,6 +3,7 @@
 namespace TmeApp\Services\Xlsx;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Color;
 
 class DataRowService
 {
@@ -73,6 +74,10 @@ class DataRowService
         }
 
         $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter . $rowNumber, $url);
+        $this->spreadsheet->getActiveSheet()->getCell($columnLetter . $rowNumber)->getHyperlink()->setUrl($url);
+        $this->spreadsheet->getActiveSheet()->getStyle($columnLetter . $rowNumber)
+            ->getFont()->getColor()->setARGB(Color::COLOR_BLUE);
+
     }
 
     private function setDescription(?string $description, int $rowNumber)
@@ -96,6 +101,7 @@ class DataRowService
             return;
         }
 
+
         $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter . $rowNumber, $parameters);
     }
 
@@ -117,6 +123,9 @@ class DataRowService
 
             if($document['type'] === 'DTE' && $document['language'] === 'PL'){
                 $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter . $rowNumber, $document['url']);
+                $this->spreadsheet->getActiveSheet()->getCell($columnLetter . $rowNumber)->getHyperlink()->setUrl($document['url']);
+                $this->spreadsheet->getActiveSheet()->getStyle($columnLetter . $rowNumber)
+                    ->getFont()->getColor()->setARGB(Color::COLOR_BLUE);
                 return;
             }
 
@@ -126,6 +135,9 @@ class DataRowService
         }
 
         $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter . $rowNumber, $englishDocumentUrl);
+        $this->spreadsheet->getActiveSheet()->getCell($columnLetter . $rowNumber)->getHyperlink()->setUrl($englishDocumentUrl);
+        $this->spreadsheet->getActiveSheet()->getStyle($columnLetter . $rowNumber)
+            ->getFont()->getColor()->setARGB(Color::COLOR_BLUE);
     }
 
     private function setUnit(?array $unit, int $rowNumber)
@@ -149,7 +161,6 @@ class DataRowService
             $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter . $rowNumber, 'b/d');
             return;
         }
-
 
         $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter . $rowNumber, $breadcrumbs);
     }
