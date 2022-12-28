@@ -96,7 +96,7 @@ class DataRowService
     {
         $columnLetter = 'F';
 
-        if ($parameters === null) {
+        if ($parameters === null || $parameters === '') {
             $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter . $rowNumber, 'b/d');
             return;
         }
