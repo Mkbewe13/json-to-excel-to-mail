@@ -1,100 +1,33 @@
 <?php
 
-namespace TmeApp\Services;
+namespace TmeApp\Services\Xlsx;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
-class XlsxService
+class DataRowService
 {
-    private const DEFAULT_DATA_FILE_PATH = __DIR__.'/../../data.json';
-
-    private const HEADERS = [
-        'MPN',
-        'Stock',
-        'Manufacturer',
-        'URL',
-        'Description',
-        'Parameters',
-        'Document',
-        'Categories',
-        'Unit'
-    ];
-
-    const FIRST_COLUMN = 'A';
-    const HEADER_ROW = 1;
-    const FIRST_DATA_ROW = self::HEADER_ROW + 1;
-
-    private array $productsData;
-
     private Spreadsheet $spreadsheet;
 
-    public function __construct(string $dataFilePath = self::DEFAULT_DATA_FILE_PATH)
+    private function __construct($spreadsheet)
     {
-
-        if(!file_exists($dataFilePath)){
-            throw new \Exception('Plik z danymi nie istnieje.');
-        }
-
-        try {
-            $file = file_get_contents($dataFilePath);
-            $this->productsData = json_decode($file,true);
-        }catch (\Exception $e){
-            throw new \Exception('Wystąpił błąd podczas przetwarzania danych z podanego pliku');
-        }
-
-        $this->spreadsheet = new Spreadsheet();
-
+        $this->spreadsheet = $spreadsheet;
     }
 
-    public function getXlsx(){
-
-        $this->prepareXlsx();
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($this->spreadsheet);
-        $writer->save("demo.xlsx");
-    }
-
-    private function prepareXlsx()
+    public static function setSingleDataRow(Spreadsheet $spreadsheet,array $productData,int $rowNumber): Spreadsheet
     {
-        $this->setHeaders();
-        $this->setDataRows();
-    }
+        $dataRowService = new self($spreadsheet);
 
+        $dataRowService->setMPN($productData['mpn'] ?? null,$rowNumber);
+        $dataRowService->setStock($productData['stock'] ?? null,$rowNumber);
+        $dataRowService->setManufacturer($productData['manufacturer'] ?? null,$rowNumber);
+        $dataRowService->setURL($productData['url'] ?? null,$rowNumber);
+        $dataRowService->setDescription($productData['description'] ?? null,$rowNumber);
+        $dataRowService->setParameters($productData['parametersAsString'] ?? null,$rowNumber);
+        $dataRowService->setDocument($productData['documents'] ?? null,$rowNumber);
+        $dataRowService->setCategories($productData['breadcrumbs'] ?? null,$rowNumber);
+        $dataRowService->setUnit($productData['unit'] ?? null,$rowNumber);
 
-
-    private function setHeaders()
-    {
-        $columnLetter = self::FIRST_COLUMN;
-        foreach (self::HEADERS as $header){
-            $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter .self::HEADER_ROW,$header);
-            $columnLetter++;
-        }
-    }
-
-    private function setDataRows()
-    {
-        $rowCounter = self::FIRST_DATA_ROW;
-
-        foreach ($this->productsData as $productData){
-            if(!is_array($productData)){
-                continue;
-            }
-
-            $this->setSingleDataRow($productData,$rowCounter);
-            $rowCounter++;
-        }
-    }
-
-    private function setSingleDataRow(array $productData,int $rowNumber)
-    {
-        $this->setMPN($productData['mpn'] ?? null,$rowNumber);
-        $this->setStock($productData['stock'] ?? null,$rowNumber);
-        $this->setManufacturer($productData['manufacturer'] ?? null,$rowNumber);
-        $this->setURL($productData['url'] ?? null,$rowNumber);
-        $this->setDescription($productData['description'] ?? null,$rowNumber);
-        $this->setParameters($productData['parametersAsString'] ?? null,$rowNumber);
-        $this->setDocument($productData['documents'] ?? null,$rowNumber);
-        $this->setCategories($productData['breadcrumbs'] ?? null,$rowNumber);
-        $this->setUnit($productData['unit'] ?? null,$rowNumber);
+        return $dataRowService->spreadsheet;
     }
 
     private function setMPN(?string $mpn, int $rowNumber)
@@ -220,6 +153,7 @@ class XlsxService
 
         $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter . $rowNumber, $breadcrumbs);
     }
+
 
 
 }
