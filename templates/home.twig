@@ -1,1 +1,38 @@
-<h1>Home</h1>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <title>TMEAPP</title>
+</head>
+<body style="background-color: gainsboro">
+
+{% if message %}
+    {% if success %}
+        <div
+            style="margin: auto; width: 50%; text-align: center;padding: 10px;background-color: lightgreen; border-radius: 5px;">
+            {{ message }}
+        </div>
+    {% else %}
+        <div
+            style="margin: auto; width: 50%; text-align: center;padding: 10px;background-color: indianred; border-radius: 5px;">
+            Wystąpił błąd: {{ message }}
+        </div>
+    {% endif %}
+
+{% endif %}
+<br>
+<div style="margin: auto; width: 50%; text-align: center;padding: 10px;background-color: cadetblue; border-radius: 5px;">
+    <h2 style="font-family:sans-serif;" >Podaj adres email, a otrzymasz mailowo plik .xlsx z danymi produktów.</h2>
+
+    <form action="" style="text-align: center; border-radius: 5px; padding: 20px; background-color: gainsboro" method="POST">
+
+       <input type="email" name="email" placeholder="Podaj adres email" style="width: 50%;padding: 12px 20px;margin: 8px 0;display: inline-block;border: 1px solid #ccc;border-radius: 4px;box-sizing: border-box;" >
+        <br>
+        <input name="submit" style="width: 30%;background-color: cadetblue; color: white;padding: 14px 20px; margin: 8px 0;border: none;border-radius: 4px;" type="submit" value="Wyślij">
+
+    </form>
+</div>
+
+
+
+</body>
+</html>

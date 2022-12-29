@@ -21,7 +21,7 @@ class EmailService
 
     private function getDSN(){
         if(!isset($_ENV['MAILER_DSN']) || !$_ENV['MAILER_DSN']){
-            throw new \Exception('MAILER_DSN is missing. Check .env file');
+            throw new \Exception('MAILER_DSN nie jest ustawiony. Sprawdź plik .env');
         }
 
         return $_ENV['MAILER_DSN'];

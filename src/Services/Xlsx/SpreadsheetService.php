@@ -68,11 +68,17 @@ class SpreadsheetService
 
     }
 
-    public function getXlsx(){
+    public function getXlsx()
+    {
 
         $this->prepareXlsx();
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($this->spreadsheet);
-        $writer->save("demo.xlsx");
+        try {
+            $writer->save(__DIR__ . "/../../../var/tmp/products_data.xlsx");
+        } catch (\Exception $e) {
+            throw new \Exception('Wystąpił błąd podczas zapisywania pliku xls. Błąd: ' . $e->getMessage());
+        }
+
     }
 
     private function prepareXlsx()
@@ -169,8 +175,11 @@ class SpreadsheetService
 
     private function setAlignment()
     {
-        $this->spreadsheet->getActiveSheet()->getStyle(self::FIRST_COLUMN . self::FIRST_DATA_ROW . ':' .'A1:D4')
+        $this->spreadsheet->getActiveSheet()->getStyle(self::FIRST_COLUMN . self::FIRST_DATA_ROW . ':' . $this->lastColumn . $this->rowsCount)
             ->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+
+        $this->spreadsheet->getActiveSheet()->getStyle(self::FIRST_COLUMN . self::FIRST_DATA_ROW . ':' . $this->lastColumn . $this->rowsCount)
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
     }
 
 }
