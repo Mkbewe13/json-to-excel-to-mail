@@ -15,7 +15,7 @@ $success = true;
 if (isset($_POST['email']) && $_POST['email']) {
     try {
         $spreadSheet = new \TmeApp\Services\Xlsx\SpreadsheetService();
-        $spreadSheet->getXlsx();
+        $spreadSheet->createXlsx();
 
         $email = (new Email())
             ->from('tmeapp@example.com')
@@ -37,9 +37,9 @@ if (isset($_POST['email']) && $_POST['email']) {
 
 
 try {
-    echo $twig->render('home.twig', ['message' => $message,'success' => $success]);
+    echo $twig->render('home.twig', ['message' => $message, 'success' => $success]);
 } catch (\Twig\Error\LoaderError|\Twig\Error\RuntimeError|\Twig\Error\SyntaxError $e) {
-    printf('Wystąpił błąd krytyczny. Nie udało się wczytać strony: %s',$e->getMessage());
+    printf('Wystąpił błąd krytyczny. Nie udało się wczytać strony: %s', $e->getMessage());
 }
 
 

@@ -2,14 +2,21 @@
 
 namespace TmeApp\Services\Xlsx;
 
+use Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 
 class SpreadsheetService
 {
+    /**
+     * Default path of json data for parse.
+     */
     private const DEFAULT_DATA_FILE_PATH = __DIR__ . '/../../../data.json';
 
+    /**
+     * Table with all xlsx file columns
+     */
     private const HEADERS = [
         'MPN',
         'Stock',
@@ -22,6 +29,9 @@ class SpreadsheetService
         'Unit'
     ];
 
+    /**
+     * Table with all xlsx file columns with their widths
+     */
     private const COLUMNS_WIDTHS = [
         'MPN' => 20,
         'Stock' => 7,
@@ -34,30 +44,43 @@ class SpreadsheetService
         'Unit' => 4,
     ];
 
+
     const FIRST_COLUMN = 'A';
     const HEADER_ROW = 1;
     const FIRST_DATA_ROW = self::HEADER_ROW + 1;
 
+    /**
+     * Array for products data from decoded json file
+     */
     private array $productsData;
 
+    /**
+     * Spreadsheet property for handling xlsx file.
+     *
+     * @var Spreadsheet
+     */
     private Spreadsheet $spreadsheet;
 
-    private $rowsCount;
-    private $columnsCount;
+    private int $rowsCount;
+    private int $columnsCount;
+
+    /**
+     * Last column letter
+     */
     private $lastColumn;
 
     public function __construct(string $dataFilePath = self::DEFAULT_DATA_FILE_PATH)
     {
 
-        if(!file_exists($dataFilePath)){
-            throw new \Exception('Plik z danymi nie istnieje.');
+        if (!file_exists($dataFilePath)) {
+            throw new Exception('Plik z danymi nie istnieje.');
         }
 
         try {
             $file = file_get_contents($dataFilePath);
-            $this->productsData = json_decode($file,true);
-        }catch (\Exception $e){
-            throw new \Exception('Wystąpił błąd podczas przetwarzania danych z podanego pliku');
+            $this->productsData = json_decode($file, true);
+        } catch (Exception $e) {
+            throw new Exception('Wystąpił błąd podczas przetwarzania danych z podanego pliku');
         }
 
         $this->rowsCount = count($this->productsData) + 1;
@@ -68,59 +91,94 @@ class SpreadsheetService
 
     }
 
-    public function getXlsx()
+    /**
+     * Create and save products data xlsx file in tmp location.
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function createXlsx()
     {
-
-        $this->prepareXlsx();
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($this->spreadsheet);
         try {
+            $this->prepareXlsx();
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($this->spreadsheet);
             $writer->save(__DIR__ . "/../../../var/tmp/products_data.xlsx");
-        } catch (\Exception $e) {
-            throw new \Exception('Wystąpił błąd podczas zapisywania pliku xls. Błąd: ' . $e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception('Wystąpił błąd podczas zapisywania pliku xls. Błąd: ' . $e->getMessage());
         }
 
     }
 
+    /**
+     * Perform all actions necessary for creating xlsx file
+     *
+     * @return void
+     * @throws Exception
+     */
     private function prepareXlsx()
     {
-        $this->setHeaders();
-        $this->setDataRows();
-        $this->addStyling();
+        try {
+            $this->setHeaders();
+            $this->setDataRows();
+            $this->addStyling();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+
     }
 
 
-
+    /**
+     * Set header columns for xlsx file
+     *
+     * @return void
+     */
     private function setHeaders()
     {
         $columnLetter = self::FIRST_COLUMN;
-        foreach (self::HEADERS as $header){
-            $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter .self::HEADER_ROW,$header);
+        foreach (self::HEADERS as $header) {
+            $this->spreadsheet->getActiveSheet()->setCellValue($columnLetter . self::HEADER_ROW, $header);
             $columnLetter++;
         }
     }
 
+    /**
+     * Sets products data rows in xlsx file
+     *
+     * @return void
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
     private function setDataRows()
     {
         $rowCounter = self::FIRST_DATA_ROW;
 
-        foreach ($this->productsData as $productData){
-            if(!is_array($productData)){
+        foreach ($this->productsData as $productData) {
+            if (!is_array($productData)) {
                 continue;
             }
 
-            $this->spreadsheet = DataRowService::setSingleDataRow($this->spreadsheet,$productData,$rowCounter);
+            $this->spreadsheet = DataRowService::setSingleDataRow($this->spreadsheet, $productData, $rowCounter);
             $rowCounter++;
         }
     }
 
+    /**
+     * Perform all styling actions for new xlsx file
+     *
+     * @return void
+     */
     private function addStyling()
     {
         $this->setColumnsWidths();
-        $this->setHeadersColors();
+        $this->setHeadersBold();
         $this->setBorders();
         $this->setAlignment();
     }
 
+    /**
+     *
+     * @return void
+     */
     private function setColumnsWidths()
     {
         $columnIterator = self::FIRST_COLUMN;
@@ -130,13 +188,22 @@ class SpreadsheetService
         }
     }
 
-    private function setHeadersColors(){
+    /**
+     * @return void
+     */
+    private function setHeadersBold()
+    {
 
-                $this->spreadsheet->getActiveSheet()->getStyle(self::FIRST_COLUMN .  self::HEADER_ROW . ':' . $this->getColumnLetter(count(self::HEADERS)) . self::HEADER_ROW)
-                    ->getFont()->setBold('true');
+        $this->spreadsheet->getActiveSheet()->getStyle(self::FIRST_COLUMN . self::HEADER_ROW . ':' . $this->getColumnLetter(count(self::HEADERS)) . self::HEADER_ROW)
+            ->getFont()->setBold('true');
 
-        }
+    }
 
+    /**
+     * Sets oll borders for new xlsx file
+     *
+     * @return void
+     */
     private function setBorders()
     {
 
@@ -168,11 +235,23 @@ class SpreadsheetService
         }
     }
 
-    private function getColumnLetter(int $columnNumber){
+    /**
+     * Get column letter by given column number
+     *
+     * @param int $columnNumber
+     * @return mixed
+     */
+    private function getColumnLetter(int $columnNumber)
+    {
         $alphabet = range('A', 'Z');
         return $alphabet[$columnNumber - 1];
     }
 
+    /**
+     * Sets alignment for data inside xlsx file.
+     *
+     * @return void
+     */
     private function setAlignment()
     {
         $this->spreadsheet->getActiveSheet()->getStyle(self::FIRST_COLUMN . self::FIRST_DATA_ROW . ':' . $this->lastColumn . $this->rowsCount)
