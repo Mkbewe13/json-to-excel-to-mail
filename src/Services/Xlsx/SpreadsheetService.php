@@ -69,6 +69,9 @@ class SpreadsheetService
      */
     private $lastColumn;
 
+    /**
+     * @throws Exception
+     */
     public function __construct(string $dataFilePath = self::DEFAULT_DATA_FILE_PATH)
     {
 
