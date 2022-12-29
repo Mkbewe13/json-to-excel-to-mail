@@ -12,7 +12,8 @@ class SpreadsheetService
     /**
      * Default path of json data for parse.
      */
-    private const DEFAULT_DATA_FILE_PATH = __DIR__ . '/../../../data.json';
+    private const DEFAULT_PRODUCTS_DATA_FILE_PATH = __DIR__ . '/../../../data.json';
+    private const DEFAULT_XLSX_FILE_PATH = __DIR__ . '/../../../var/tmp/products_data.xlsx';
 
     /**
      * Table with all xlsx file columns
@@ -45,9 +46,9 @@ class SpreadsheetService
     ];
 
 
-    const FIRST_COLUMN = 'A';
-    const HEADER_ROW = 1;
-    const FIRST_DATA_ROW = self::HEADER_ROW + 1;
+    private const FIRST_COLUMN = 'A';
+    private const HEADER_ROW = 1;
+    private const FIRST_DATA_ROW = self::HEADER_ROW + 1;
 
     /**
      * Array for products data from decoded json file
@@ -72,7 +73,7 @@ class SpreadsheetService
     /**
      * @throws Exception
      */
-    public function __construct(string $dataFilePath = self::DEFAULT_DATA_FILE_PATH)
+    public function __construct(string $dataFilePath = self::DEFAULT_PRODUCTS_DATA_FILE_PATH)
     {
 
         if (!file_exists($dataFilePath)) {
@@ -105,7 +106,7 @@ class SpreadsheetService
         try {
             $this->prepareXlsx();
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($this->spreadsheet);
-            $writer->save(__DIR__ . "/../../../var/tmp/products_data.xlsx");
+            $writer->save(self::DEFAULT_XLSX_FILE_PATH);
         } catch (Exception $e) {
             throw new Exception('Wystąpił błąd podczas zapisywania pliku xls. Błąd: ' . $e->getMessage());
         }
@@ -264,4 +265,11 @@ class SpreadsheetService
             ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
     }
 
+    /**
+     * @return string
+     */
+    public static function getDefaultXlsxFilePath(): string
+    {
+        return self::DEFAULT_XLSX_FILE_PATH;
+    }
 }
