@@ -5,6 +5,7 @@
         }
     },
     "require": {
+        "php": ">=7.4",
         "phpoffice/phpspreadsheet": "^1.26",
         "twig/twig": "^2.0",
         "symfony/mailer": "^5.4",
